@@ -1,0 +1,8 @@
+name            'h0tbird-user'
+version         '0.0.1'
+source          'https://github.com/h0tbird/puppet-user'
+author          'Marc Villacorta'
+license         'GPL'
+summary         'User Module'
+description     'Manages system and services users.'
+project_page    'https://github.com/h0tbird/puppet-user'
