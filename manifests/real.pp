@@ -9,52 +9,63 @@
 #------------------------------------------------------------------------------
 define user::real (
 
-    $ensure = present,
-    $uid    = undef,
-    $gid    = undef,
-    $name   = undef,
-    $groups = undef,
-    $pass   = undef,
-    $home   = undef,
-    $shell  = undef,
+    $linux  = undef,
     $git    = undef,
     $samba  = undef,
-    $grant  = undef,
-    $key    = undef,
 
 ) {
 
-    if $home { $managehome = true }
-    if $pass == '!!' { $hash = $pass }
-    else { $hash = mkpasswd($pass, $title) }
-
-    user { $title:
-        ensure     => $ensure,
-        uid        => $uid,
-        gid        => $gid,
-        groups     => $groups,
-        comment    => $name,
-        password   => $hash,
-        managehome => $managehome,
-        home       => $home,
-        shell      => $shell,
-        require    => Group[$title],
-    }
- 
-    group { $title:
-        ensure  => $ensure,
-        gid     => $gid,
-    }
-
+    #-------------
     # Linux user:
-    if $key { ssh::key { $title: users => $grant } }
+    #-------------
 
+    if $linux {
+
+        if $linux['home'] { $managehome = true }
+        if $linux['pass'] == '!!' { $hash = '!!' }
+        else { $hash = mkpasswd($linux['pass'], $title) }
+
+        user { $title:
+            ensure     => $ensure,
+            uid        => $linux['uid'],
+            gid        => $linux['gid'],
+            groups     => $linux['groups'],
+            comment    => $linux['comment'],
+            home       => $linux['home'],
+            shell      => $linux['shell'],
+            managehome => $managehome,
+            password   => $hash,
+            require    => Group[$title],
+        }
+
+        group { $title:
+            ensure  => $ensure,
+            gid     => $linux['gid'],
+        }
+
+        if $linux['key'] {
+            ssh::key { $title:
+                key   => $linux['key'],
+                users => $linux['grant'],
+            }
+        }
+    }
+
+    #-------------
     # Samba user:
-    if $samba { samba::user { $title: pass => $samba['password'] } }
+    #-------------
 
+    if $samba {
+        samba::user { $title:
+            pass => $samba['password'],
+        }
+    }
+
+    #-----------
     # Git user:
-    if $git {
+    #-----------
 
+    if $git {
         git::user { $title:
             ensure   => $ensure,
             home     => $git['home'],
