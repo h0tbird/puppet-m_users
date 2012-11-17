@@ -9,11 +9,18 @@
 #------------------------------------------------------------------------------
 define user::real (
 
+    $ensure = present,
     $linux  = undef,
     $git    = undef,
     $samba  = undef,
 
 ) {
+
+    #----------------------
+    # Validate parameters:
+    #----------------------
+
+    validate_re($ensure, '^present$|^absent$')
 
     #-------------
     # Linux user:
@@ -55,9 +62,10 @@ define user::real (
     # Samba user:
     #-------------
 
-    if $samba {
+    if $linux and $samba {
         samba::user { $title:
-            pass => $samba['password'],
+            pass    => $samba['password'],
+            require => User[$title],
         }
     }
 
@@ -65,7 +73,7 @@ define user::real (
     # Git user:
     #-----------
 
-    if $git {
+    if $linux and $git {
         git::user { $title:
             ensure   => $ensure,
             home     => $git['home'],
@@ -73,6 +81,7 @@ define user::real (
             email    => $git['email'],
             editor   => $git['editor'],
             difftool => $git['difftool'],
+            require  => User[$title],
         }
     }
 }
