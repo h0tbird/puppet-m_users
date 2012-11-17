@@ -9,32 +9,59 @@
 #------------------------------------------------------------------------------
 define user::real (
 
-    $has_password   = undef,
-    $has_ssh_keys   = undef,
-    $can_login      = undef,
-    $managehome     = undef,
-    $other_groups   = undef,
-    $is_samba_user  = undef,
-    $is_git_user    = undef,
-    $password       = extlookup("user/${name}/pass")
+    $ensure = present,
+    $uid    = undef,
+    $gid    = undef,
+    $name   = undef,
+    $groups = undef,
+    $pass   = undef,
+    $home   = undef,
+    $shell  = undef,
+    $git    = undef,
+    $samba  = undef,
+    $grant  = undef,
+    $key    = undef,
 
 ) {
 
-    # Include the main class:
-    include user
+    if $home { $managehome = true }
+    if $pass == '!!' { $hash = $pass }
+    else { $hash = mkpasswd($pass, $title) }
+
+    user { $title:
+        ensure     => $ensure,
+        uid        => $uid,
+        gid        => $gid,
+        groups     => $groups,
+        comment    => $name,
+        password   => $hash,
+        managehome => $managehome,
+        home       => $home,
+        shell      => $shell,
+        require    => Group[$title],
+    }
+ 
+    group { $title:
+        ensure  => $ensure,
+        gid     => $gid,
+    }
 
     # Linux user:
-    if $has_password { User <| title == $name |> { password => mkpasswd($password, $name) } }
-    if $can_login    { User <| title == $name |> { shell => '/bin/bash' } }
-    if $other_groups { User <| title == $name |> { groups +> $other_groups } }
-    if $managehome   { User <| title == $name |> { managehome => $managehome } }
-    if $has_ssh_keys { ssh::key { $name: users => extlookup("user/${name}/grant") } }
-
-    realize(User[$name], Group[$name])
+    if $key { ssh::key { $title: users => $grant } }
 
     # Samba user:
-    if $is_samba_user { samba::user { $name: pass => $password } }
+    if $samba { samba::user { $title: pass => $samba['password'] } }
 
     # Git user:
-    if $is_git_user { git::user { $name: } }
+    if $git {
+
+        git::user { $title:
+            ensure   => $ensure,
+            home     => $git['home'],
+            fullname => $git['fullname'],
+            email    => $git['email'],
+            editor   => $git['editor'],
+            difftool => $git['difftool'],
+        }
+    }
 }
