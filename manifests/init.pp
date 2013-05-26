@@ -1,4 +1,4 @@
-class user ( $users ) {
+class users ( $users ) {
 
-    create_resources(user::real, $users)
+    create_resources(users::user, $users)
 }

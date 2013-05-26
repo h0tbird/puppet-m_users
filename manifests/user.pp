@@ -1,13 +1,13 @@
 #------------------------------------------------------------------------------
-# Define: user::real
+# Define: users::user
 #
-#    This define is part of the user module.
+#    This define is part of the users module.
 #
 #    Marc Villacorta <marc.villacorta@gmail.com>
 #    2011-08-24
 #
 #------------------------------------------------------------------------------
-define user::real (
+define users::user (
 
     $ensure = present,
     $linux  = undef,
