@@ -46,8 +46,8 @@ define user::real (
         }
 
         group { $title:
-            ensure  => $ensure,
-            gid     => $linux['gid'],
+            ensure => $ensure,
+            gid    => $linux['gid'],
         }
 
         if $linux['key'] {
