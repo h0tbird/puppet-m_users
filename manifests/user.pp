@@ -28,10 +28,6 @@ define users::user (
 
     if $linux {
 
-        if $linux['home'] { $managehome = true }
-        if $linux['pass'] == '!!' { $hash = '!!' }
-        else { $hash = mkpasswd($linux['pass'], $title) }
-
         user { $title:
             ensure     => $ensure,
             uid        => $linux['uid'],
@@ -40,8 +36,8 @@ define users::user (
             comment    => $linux['comment'],
             home       => $linux['home'],
             shell      => $linux['shell'],
-            managehome => $managehome,
-            password   => $hash,
+            managehome => $linux['home'],
+            password   => mkpasswd($linux['pass'], $title),
             require    => Group[$title],
         }
 
@@ -54,6 +50,26 @@ define users::user (
             ssh::key { $title:
                 key   => $linux['key'],
                 users => $linux['grant'],
+            }
+        }
+
+        if $linux['profile'] {
+
+            file {
+
+                "${linux['home']}/.bash_profile":
+                    ensure  => $ensure,
+                    content => template("${module_name}/bash_profile-${title}.erb"),
+                    owner   => $title,
+                    group   => $title,
+                    mode    => '0644';
+
+                "${linux['home']}/.bashrc":
+                    ensure  => $ensure,
+                    content => template("${module_name}/bashrc-${title}.erb"),
+                    owner   => $title,
+                    group   => $title,
+                    mode    => '0644';
             }
         }
     }

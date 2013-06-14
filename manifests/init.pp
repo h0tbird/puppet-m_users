@@ -1,4 +1,6 @@
-class users ( $users ) {
+class users ( $users = undef ) {
 
-    create_resources(users::user, $users)
+	if $users {
+    	create_resources(users::user, $users)
+  	}
 }
