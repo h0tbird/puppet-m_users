@@ -46,11 +46,9 @@ define users::user (
             gid    => $linux['gid'],
         }
 
-        if $linux['key'] {
-            ssh::key { $title:
-                key   => $linux['key'],
-                users => $linux['grant'],
-            }
+        if $linux['keys'] {
+            $keys = concat_titles($linux['keys'], append, "/${title}")
+            create_resources(ssh::key, $keys)
         }
 
         if $linux['profile'] {
