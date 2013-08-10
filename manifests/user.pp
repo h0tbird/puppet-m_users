@@ -51,25 +51,38 @@ define users::user (
             create_resources(ssh::key, $keys)
         }
 
-        if $linux['profile'] {
+        if $linux['profiles'] { each($linux['profiles']) |$i| {
 
-            file {
+            if $i == $title {
 
-                "${linux['home']}/.bash_profile":
+                file { "${linux['home']}/.bash_profile":
                     ensure  => $ensure,
                     content => template("${module_name}/bash_profile-${title}.erb"),
                     owner   => $title,
                     group   => $title,
-                    mode    => '0644';
+                    mode    => '0644',
+                }
 
-                "${linux['home']}/.bashrc":
+                file { "${linux['home']}/.bashrc":
                     ensure  => $ensure,
                     content => template("${module_name}/bashrc-${title}.erb"),
                     owner   => $title,
                     group   => $title,
-                    mode    => '0644';
+                    mode    => '0644',
+                }
             }
-        }
+
+            else {
+
+                file { "${linux['home']}/.bash_${i}":
+                    ensure  => $ensure,
+                    content => template("${module_name}/bash-${i}.erb"),
+                    owner   => $title,
+                    group   => $title,
+                    mode    => '0644',
+                }
+            }
+        }}
     }
 
     #-------------
