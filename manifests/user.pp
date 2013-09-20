@@ -28,6 +28,8 @@ define users::user (
 
     if $linux {
 
+        if $linux['home'] { $managehome = true }
+
         user { $title:
             ensure     => $ensure,
             uid        => $linux['uid'],
@@ -36,7 +38,7 @@ define users::user (
             comment    => $linux['comment'],
             home       => $linux['home'],
             shell      => $linux['shell'],
-            managehome => $linux['home'],
+            managehome => $managehome,
             password   => mkpasswd($linux['pass'], $title),
             require    => Group[$title],
         }
