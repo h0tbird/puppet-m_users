@@ -5,11 +5,16 @@ if [ -f ~/.bashrc ]; then
     . ~/.bashrc
 fi
 
+# Root feels like home
 if [ "${SSH_USER}" ]; then
+
   logger -ip auth.notice -t sshd "Accepted publickey for ${SSH_USER}"
+
   [ -f /home/${SSH_USER}/.bash_profile ] && {
-    HOME=/home/${SSH_USER} source /home/${SSH_USER}/.bash_profile
+    HOME=/home/${SSH_USER} && cd ${HOME}
+    source /home/${SSH_USER}/.bash_profile
   }
+
 fi
 
 # User specific environment and startup programs
