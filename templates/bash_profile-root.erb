@@ -5,10 +5,11 @@ if [ -f ~/.bashrc ]; then
     . ~/.bashrc
 fi
 
-if [ "$SSH_USER" != "" ]; then
-  logger -ip auth.notice -t sshd "Accepted publickey for $SSH_USER"
-  export HISTTIMEFORMAT="[%Y-%m-%d %H:%M:%S - $SSH_USER] "
-  [ -f ~/.bash_$SSH_USER ] && source ~/.bash_$SSH_USER
+if [ "${SSH_USER}" ]; then
+  logger -ip auth.notice -t sshd "Accepted publickey for ${SSH_USER}"
+  [ -f /home/${SSH_USER}/.bash_profile ] && {
+    HOME=/home/${SSH_USER} source /home/${SSH_USER}/.bash_profile
+  }
 fi
 
 # User specific environment and startup programs
