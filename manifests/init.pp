@@ -27,37 +27,21 @@ class users {
       create_resources(ssh::key, $keys)
     }
 
-    $data['linux']['profiles'].each |$profile| {
+    file {
 
-      if $profile == $user {
+      "${data['linux']['home']}/.bash_profile":
+        ensure  => present,
+        content => template("${module_name}/bash_profile-${user}.erb"),
+        owner   => $user,
+        group   => $user,
+        mode    => '0644';
 
-        file {
-
-          "${data['linux']['home']}/.bash_profile":
-            ensure  => present,
-            content => template("${module_name}/bash_profile-${user}.erb"),
-            owner   => $user,
-            group   => $user,
-            mode    => '0644';
-
-          "${data['linux']['home']}/.bashrc":
-            ensure  => present,
-            content => template("${module_name}/bashrc-${user}.erb"),
-            owner   => $user,
-            group   => $user,
-            mode    => '0644';
-        }
-
-      } else {
-
-        file { "${data['linux']['home']}/.bash_${profile}":
-          ensure  => present,
-          content => template("${module_name}/bash-${profile}.erb"),
-          owner   => $user,
-          group   => $user,
-          mode    => '0644',
-        }
-      }
+      "${data['linux']['home']}/.bashrc":
+        ensure  => present,
+        content => template("${module_name}/bashrc-${user}.erb"),
+        owner   => $user,
+        group   => $user,
+        mode    => '0644';
     }
   }
 }
